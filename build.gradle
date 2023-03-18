@@ -1,0 +1,50 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.5.10'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        url artifactory_url
+        credentials {
+            username artifactory_user
+            password artifactory_password
+        }
+        allowInsecureProtocol = true
+    }
+    maven { url "https://maven.pkg.jetbrains.space/public/p/ktor/eap" }
+}
+
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+    implementation 'ru.talenttech.xqa:oknetwork:0.5.2'
+    implementation 'org.json:json:20220320'
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'joda-time:joda-time:2.10.14'
+    implementation 'io.ktor:ktor-server-core:2.0.3'
+    implementation 'io.ktor:ktor-server-netty:2.0.3'
+    implementation 'io.ktor:ktor-server-status-pages:2.0.3'
+    implementation 'io.ktor:ktor-server-default-headers:2.0.3'
+    implementation 'io.ktor:ktor-network-tls-certificates:2.0.3'
+    implementation 'io.ktor:ktor-serialization-kotlinx-json:2.0.3'
+    implementation 'io.ktor:ktor-server-content-negotiation:2.0.3'
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        attributes 'Implementation-Title': 'Jar with libraries',
+                'Implementation-Version': 1.01,
+                'Main-Class': 'MainKt'
+    }
+    configurations.implementation.setCanBeResolved(true)
+    configurations.api.setCanBeResolved(true)
+
+    archiveBaseName = "${rootProject.name}"
+    from { configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
